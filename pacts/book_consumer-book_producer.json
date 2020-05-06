@@ -1,0 +1,39 @@
+{
+  "consumer": {
+    "name": "Book Consumer"
+  },
+  "provider": {
+    "name": "Book Producer"
+  },
+  "interactions": [
+    {
+      "description": "a request for retrieving the book",
+      "providerState": "two books",
+      "request": {
+        "method": "GET",
+        "path": "/books"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": [
+          {
+            "self": "/books/1",
+            "title": "Hello Book 1"
+          },
+          {
+            "self": "/books/2",
+            "title": "Hello Book 2"
+          }
+        ]
+      }
+    }
+  ],
+  "metadata": {
+    "pactSpecification": {
+      "version": "2.0.0"
+    }
+  }
+}

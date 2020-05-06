@@ -1,0 +1,18 @@
+{
+  "name": "tdd-a-consumer-aiymi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@pact-foundation/pact": "^9.10.0",
+    "bent": "^7.3.0",
+    "chai": "^4.2.0",
+    "mocha": "^7.1.2"
+  }
+}

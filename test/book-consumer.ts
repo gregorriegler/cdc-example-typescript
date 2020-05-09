@@ -55,19 +55,19 @@ const requestANonExistingBook = {
     }
 };
 
-type Book = {
-    self: string
-    title: string
-}
-
-function decodeBook(object): Book {
-    return {
-        self: object.self,
-        title: object.title
-    }
-}
-
 function bookClient(baseUrl: string) {
+    type Book = {
+        self: string
+        title: string
+    }
+
+    function decodeBook(object): Book {
+        return {
+            self: object.self,
+            title: object.title
+        }
+    }
+
     return {
         allBooks: async () : Promise<Array<Book>> => {
             const getStream = bent(baseUrl)
@@ -87,17 +87,6 @@ function bookClient(baseUrl: string) {
             return some(decodeBook(await stream.json()))
         }
     }
-}
-
-async function findBook(stream: any) : Promise<Option<Book>> {
-    let book: Option<Book>;
-    if (stream.status !== 200) {
-        console.info(await stream.text())
-        book = none
-    } else {
-        book = some(decodeBook(await stream.json()))
-    }
-    return book;
 }
 
 describe("Books Client", () => {

@@ -1,7 +1,8 @@
+import {bookClient} from "../book-client";
+import {none, some} from 'fp-ts/lib/Option'
+
 const {Pact} = require("@pact-foundation/pact")
-const bent = require("bent")
 const expect = require("chai").expect
-import {Option, none, some} from 'fp-ts/lib/Option'
 
 const requestAListOfBooks = {
     state: "two books",
@@ -54,40 +55,6 @@ const requestANonExistingBook = {
         status: 404
     }
 };
-
-function bookClient(baseUrl: string) {
-    type Book = {
-        self: string
-        title: string
-    }
-
-    function decodeBook(object): Book {
-        return {
-            self: object.self,
-            title: object.title
-        }
-    }
-
-    return {
-        allBooks: async () : Promise<Array<Book>> => {
-            const getStream = bent(baseUrl)
-            let stream = await getStream("/books")
-            let response = await stream.json()
-
-            let bookList: Array<Book> = response.map(decodeBook)
-            return bookList;
-        },
-        requestBook: async (path: string) : Promise<Option<Book>> => {
-            const getStream = bent(baseUrl, 200, 404)
-            let stream = await getStream(path);
-            if (stream.status !== 200) {
-                console.info(await stream.text())
-                return none;
-            }
-            return some(decodeBook(await stream.json()))
-        }
-    }
-}
 
 describe("Books Client", () => {
     const producer = new Pact({

@@ -55,6 +55,40 @@ const requestANonExistingBook = {
     }
 };
 
+type Book = {
+    self: string
+    title: string
+}
+
+function decodeBook(object): Book {
+    return {
+        self: object.self,
+        title: object.title
+    }
+}
+
+async function requestAllBooks(baseUrl: string) {
+    const getStream = bent(baseUrl)
+    let stream = await getStream("/books")
+    let response = await stream.json()
+
+    let bookList: Array<Book> = response.map(decodeBook)
+    return bookList;
+}
+
+async function requestBook(baseUrl: string, path: string) {
+    const getStream = bent(baseUrl, 200, 404)
+    return await findBook(await getStream(path));
+}
+
+async function findBook(stream: any) {
+    if (stream.status !== 200) {
+        console.info(await stream.text())
+        return none
+    }
+    return some(decodeBook(await stream.json()))
+}
+
 describe("Books Client", () => {
     const producer = new Pact({
         consumer: "Book Consumer",
@@ -80,23 +114,7 @@ describe("Books Client", () => {
         })
 
         it("finds the list of books", async () => {
-            type Book = {
-                self: string
-                title: string
-            }
-
-            function decodeBook(object): Book {
-                return {
-                    self: object.self,
-                    title: object.title
-                }
-            }
-
-            const getStream = bent("http://localhost:1234")
-            let stream = await getStream("/books")
-            let response = await stream.json()
-
-            let bookList: Array<Book> = response.map(decodeBook)
+            let bookList = await requestAllBooks("http://localhost:1234");
 
             expect(bookList).to.deep.equal([
                 {self: "/books/1", title: "Hello Book 1"},
@@ -111,29 +129,7 @@ describe("Books Client", () => {
         })
 
         it("finds the book", async () => {
-            type Book = {
-                self: string
-                title: string
-            }
-
-            function decodeBook(object): Book {
-                return {
-                    self: object.self,
-                    title: object.title
-                }
-            }
-
-            async function findBook(path: string) {
-                let stream = await getStream(path)
-                if (stream.status !== 200) {
-                    console.info(await stream.text())
-                    return none
-                }
-                return some(decodeBook(await stream.json()))
-            }
-
-            const getStream = bent("http://localhost:1234", 200, 404)
-            let book = await findBook("/books/1")
+            let book = await requestBook("http://localhost:1234", "/books/1");
 
             expect(book).to.deep.equal(some({self: "/books/1", title: "Hello Book 1"}))
         })
@@ -145,29 +141,7 @@ describe("Books Client", () => {
         })
 
         it("finds nothing", async () => {
-            type Book = {
-                self: string
-                title: string
-            }
-
-            function decodeBook(object): Book {
-                return {
-                    self: object.self,
-                    title: object.title
-                }
-            }
-
-            async function findBook(path: string) {
-                let stream = await getStream(path)
-                if (stream.status !== 200) {
-                    console.info(await stream.text())
-                    return none
-                }
-                return some(decodeBook(await stream.json()))
-            }
-
-            const getStream = bent("http://localhost:1234", 200, 404)
-            let book = await findBook("/books/3")
+            let book = await requestBook("http://localhost:1234", "/books/3");
 
             expect(book).to.equal(none)
         })

@@ -66,8 +66,8 @@ describe("Books Client", () => {
         await producer.setup()
     })
 
-    afterEach(() => {
-        producer.verify()
+    afterEach(async () => {
+        await producer.verify()
     })
 
     after(() => {

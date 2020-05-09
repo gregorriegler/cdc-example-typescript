@@ -7,7 +7,7 @@
   },
   "interactions": [
     {
-      "description": "a request for retrieving the book",
+      "description": "a request for retrieving all books",
       "providerState": "two books",
       "request": {
         "method": "GET",
@@ -28,6 +28,24 @@
             "title": "Hello Book 2"
           }
         ]
+      }
+    },
+    {
+      "description": "a request for retrieving the first book",
+      "providerState": "two books",
+      "request": {
+        "method": "GET",
+        "path": "/books/1"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "self": "/books/1",
+          "title": "Hello Book 1"
+        }
       }
     }
   ],

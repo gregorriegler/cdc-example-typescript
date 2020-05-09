@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha -r ts-node/register test/**/*.ts",
+    "test:watch": "mocha -r ts-node/register -R min --watch --watch-files test/**/*.ts test/**/*.ts"
   },
   "keywords": [],
   "author": "",

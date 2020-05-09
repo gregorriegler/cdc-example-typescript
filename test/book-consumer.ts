@@ -1,11 +1,11 @@
 const {Pact} = require("@pact-foundation/pact")
 const bent = require("bent")
-const getJSON = bent("json")
 const expect = require("chai").expect
+import {none, some} from 'fp-ts/lib/Option'
 
 const requestAListOfBooks = {
     state: "two books",
-    uponReceiving: "a request for retrieving all books",
+    uponReceiving: "a request for all books",
     withRequest: {
         method: "GET",
         path: "/books"
@@ -28,7 +28,7 @@ const requestAListOfBooks = {
 
 const requestASingleBook = {
     state: "two books",
-    uponReceiving: "a request for retrieving the first book",
+    uponReceiving: "a request for the first book",
     withRequest: {
         method: "GET",
         path: "/books/1"
@@ -40,6 +40,18 @@ const requestASingleBook = {
             "self": "/books/1",
             "title": "Hello Book 1"
         }
+    }
+};
+
+const requestANonExistingBook = {
+    state: "two books",
+    uponReceiving: "a request for a non existing book",
+    withRequest: {
+        method: "GET",
+        path: "/books/3"
+    },
+    willRespondWith: {
+        status: 404
     }
 };
 
@@ -80,7 +92,9 @@ describe("Books Client", () => {
                 }
             }
 
-            let response = await getJSON("http://localhost:1234" + "/books")
+            const getStream = bent("http://localhost:1234")
+            let stream = await getStream("/books")
+            let response = await stream.json()
 
             let bookList: Array<Book> = response.map(decodeBook)
 
@@ -109,11 +123,53 @@ describe("Books Client", () => {
                 }
             }
 
-            let response = await getJSON("http://localhost:1234" + "/books/1")
+            async function findBook(path: string) {
+                let stream = await getStream(path)
+                if (stream.status !== 200) {
+                    console.info(await stream.text())
+                    return none
+                }
+                return some(decodeBook(await stream.json()))
+            }
 
-            let book: Book = decodeBook(response)
+            const getStream = bent("http://localhost:1234", 200, 404)
+            let book = await findBook("/books/1")
 
-            expect(book).to.deep.equal({self: "/books/1", title: "Hello Book 1"})
+            expect(book).to.deep.equal(some({self: "/books/1", title: "Hello Book 1"}))
         })
     })
-});
+
+    describe("requesting a non existing book", () => {
+        before(() => {
+            producer.addInteraction(requestANonExistingBook)
+        })
+
+        it("finds nothing", async () => {
+            type Book = {
+                self: string
+                title: string
+            }
+
+            function decodeBook(object): Book {
+                return {
+                    self: object.self,
+                    title: object.title
+                }
+            }
+
+            async function findBook(path: string) {
+                let stream = await getStream(path)
+                if (stream.status !== 200) {
+                    console.info(await stream.text())
+                    return none
+                }
+                return some(decodeBook(await stream.json()))
+            }
+
+            const getStream = bent("http://localhost:1234", 200, 404)
+            let book = await findBook("/books/3")
+
+            expect(book).to.equal(none)
+        })
+    })
+})

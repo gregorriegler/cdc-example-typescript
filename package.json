@@ -11,8 +11,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/bent": "^7.0.2",
     "bent": "^7.3.0",
-    "@types/bent": "^7.0.2"
+    "fp-ts": "^2.5.4"
   },
   "devDependencies": {
     "@pact-foundation/pact": "^9.10.0",

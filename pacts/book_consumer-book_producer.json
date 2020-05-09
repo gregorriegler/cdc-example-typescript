@@ -7,7 +7,7 @@
   },
   "interactions": [
     {
-      "description": "a request for retrieving all books",
+      "description": "a request for all books",
       "providerState": "two books",
       "request": {
         "method": "GET",
@@ -31,7 +31,7 @@
       }
     },
     {
-      "description": "a request for retrieving the first book",
+      "description": "a request for the first book",
       "providerState": "two books",
       "request": {
         "method": "GET",
@@ -45,6 +45,19 @@
         "body": {
           "self": "/books/1",
           "title": "Hello Book 1"
+        }
+      }
+    },
+    {
+      "description": "a request for a non existing book",
+      "providerState": "two books",
+      "request": {
+        "method": "GET",
+        "path": "/books/3"
+      },
+      "response": {
+        "status": 404,
+        "headers": {
         }
       }
     }

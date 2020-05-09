@@ -80,14 +80,11 @@ function bookClient(baseUrl: string) {
         requestBook: async (path: string) : Promise<Option<Book>> => {
             const getStream = bent(baseUrl, 200, 404)
             let stream = await getStream(path);
-            let book: Option<Book>;
             if (stream.status !== 200) {
                 console.info(await stream.text())
-                book = none
-            } else {
-                book = some(decodeBook(await stream.json()))
+                return none;
             }
-            return book;
+            return some(decodeBook(await stream.json()))
         }
     }
 }

@@ -18,8 +18,7 @@ export function bookClient(baseUrl: string) {
     return {
         allBooks: async (): Promise<Array<Book>> => {
             let response = await bent(baseUrl, "json")("/books")
-            let bookList: Array<Book> = response.map(decodeBook)
-            return bookList;
+            return response.map(decodeBook);
         },
         requestBook: async (path: string): Promise<Option<Book>> => {
             const getStream = bent(baseUrl, 200, 404)

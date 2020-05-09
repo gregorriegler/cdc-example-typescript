@@ -1,7 +1,7 @@
 const {Pact} = require("@pact-foundation/pact")
 const bent = require("bent")
 const expect = require("chai").expect
-import {none, some} from 'fp-ts/lib/Option'
+import {Option, none, some} from 'fp-ts/lib/Option'
 
 const requestAListOfBooks = {
     state: "two books",
@@ -67,26 +67,40 @@ function decodeBook(object): Book {
     }
 }
 
-async function requestAllBooks(baseUrl: string) {
-    const getStream = bent(baseUrl)
-    let stream = await getStream("/books")
-    let response = await stream.json()
+function bookClient(baseUrl: string) {
+    return {
+        allBooks: async () : Promise<Array<Book>> => {
+            const getStream = bent(baseUrl)
+            let stream = await getStream("/books")
+            let response = await stream.json()
 
-    let bookList: Array<Book> = response.map(decodeBook)
-    return bookList;
+            let bookList: Array<Book> = response.map(decodeBook)
+            return bookList;
+        },
+        requestBook: async (path: string) : Promise<Option<Book>> => {
+            const getStream = bent(baseUrl, 200, 404)
+            let stream = await getStream(path);
+            let book: Option<Book>;
+            if (stream.status !== 200) {
+                console.info(await stream.text())
+                book = none
+            } else {
+                book = some(decodeBook(await stream.json()))
+            }
+            return book;
+        }
+    }
 }
 
-async function requestBook(baseUrl: string, path: string) {
-    const getStream = bent(baseUrl, 200, 404)
-    return await findBook(await getStream(path));
-}
-
-async function findBook(stream: any) {
+async function findBook(stream: any) : Promise<Option<Book>> {
+    let book: Option<Book>;
     if (stream.status !== 200) {
         console.info(await stream.text())
-        return none
+        book = none
+    } else {
+        book = some(decodeBook(await stream.json()))
     }
-    return some(decodeBook(await stream.json()))
+    return book;
 }
 
 describe("Books Client", () => {
@@ -114,7 +128,7 @@ describe("Books Client", () => {
         })
 
         it("finds the list of books", async () => {
-            let bookList = await requestAllBooks("http://localhost:1234");
+            let bookList = await bookClient("http://localhost:1234").allBooks();
 
             expect(bookList).to.deep.equal([
                 {self: "/books/1", title: "Hello Book 1"},
@@ -129,7 +143,7 @@ describe("Books Client", () => {
         })
 
         it("finds the book", async () => {
-            let book = await requestBook("http://localhost:1234", "/books/1");
+            let book = await bookClient("http://localhost:1234").requestBook("/books/1");
 
             expect(book).to.deep.equal(some({self: "/books/1", title: "Hello Book 1"}))
         })
@@ -141,7 +155,7 @@ describe("Books Client", () => {
         })
 
         it("finds nothing", async () => {
-            let book = await requestBook("http://localhost:1234", "/books/3");
+            let book = await bookClient("http://localhost:1234").requestBook("/books/3");
 
             expect(book).to.equal(none)
         })

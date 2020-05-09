@@ -1,10 +1,10 @@
-import {bookClient} from "../book-client";
+import {bookClient} from "../src/book-client";
 import {none, some} from 'fp-ts/lib/Option'
+import {expect} from "chai";
+import {InteractionObject, Pact} from "@pact-foundation/pact";
 
-const {Pact} = require("@pact-foundation/pact")
-const expect = require("chai").expect
 
-const requestAListOfBooks = {
+const requestAListOfBooks : InteractionObject = {
     state: "two books",
     uponReceiving: "a request for all books",
     withRequest: {
@@ -27,7 +27,7 @@ const requestAListOfBooks = {
     },
 };
 
-const requestASingleBook = {
+const requestASingleBook : InteractionObject = {
     state: "two books",
     uponReceiving: "a request for the first book",
     withRequest: {
@@ -44,7 +44,7 @@ const requestASingleBook = {
     }
 };
 
-const requestANonExistingBook = {
+const requestANonExistingBook : InteractionObject = {
     state: "two books",
     uponReceiving: "a request for a non existing book",
     withRequest: {

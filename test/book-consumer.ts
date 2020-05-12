@@ -83,7 +83,7 @@ describe("Books Client", () => {
         })
 
         it("finds the list of books", async () => {
-            let bookList = await books.allBooks();
+            const bookList = await books.allBooks();
 
             expect(bookList).to.deep.equal([
                 {self: "/books/1", title: "Hello Book 1"},
@@ -98,7 +98,7 @@ describe("Books Client", () => {
         })
 
         it("finds the book", async () => {
-            let book = await books.requestBook("/books/1");
+            const book = await books.requestBook("/books/1");
 
             expect(book).to.deep.equal(some({self: "/books/1", title: "Hello Book 1"}))
         })
@@ -110,7 +110,7 @@ describe("Books Client", () => {
         })
 
         it("finds nothing", async () => {
-            let book = await books.requestBook("/books/3");
+            const book = await books.requestBook("/books/3");
 
             expect(book).to.equal(none)
         })
